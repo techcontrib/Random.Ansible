@@ -19,4 +19,4 @@
       ignore_errors: yes
     
     - debug:
-        msg: "{{ port_check.stdout }}"
+        msg: "{{ port_check }}"
