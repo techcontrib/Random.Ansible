@@ -1,0 +1,22 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: yes
+  vars:
+    port_to_chk: 22
+  
+  tasks:
+     
+    - name: Check port 22 Ansible Controller to ALL Linux Hosts
+      local_action:
+        module: wait_for
+        host: "{{ inventory_hostname }}"
+        port: "{{ port_to_chk }}"
+        delay: 0
+        timeout: 10
+        msg: "Timeout while waiting for port 22"
+      register: port_check
+      ignore_errors: yes
+    
+    - debug:
+        msg: "{{ port_check.stdout }}"
