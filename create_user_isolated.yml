@@ -1,0 +1,30 @@
+# Create users as per the inventory groups, example:  app servers and DB servers needs different set of users to be created \
+# hence create user conditionally based on inventory group
+---
+- name: New users are created
+  hosts: all
+  become: true
+  vars:
+    db_users:
+      - stage
+      - qa
+      - prod
+    web_user:
+      - member
+      - admin
+      - developer
+
+  tasks:
+    - name: Create Database Users
+      user:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ db_users }}"
+      when: "'databases' in group_names"
+
+    - name: Create Webserver Users
+      user:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ web_users }}"
+      when: "'webservers' in group_names"
