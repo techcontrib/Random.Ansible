@@ -1,0 +1,37 @@
+# Ansible supports provisioning but not full blown like Terraform but basic capabilities are certainly present. 
+# Pre-req:
+#   boto3 library (pip3 install boto|boto3)
+# This playbook will provision EC2 on AWS Cloud. 
+# Use ec2 ansible module
+# What we need?
+#  - region
+#  - AMI
+#  - Instance type
+#  - count
+#  - VPC, subnet, AZ, Security Group
+#  - SSH Key
+---
+- hosts: localhost
+  var_files:
+      - secure.yml
+  tasks:
+  - name: AWS EC2 provisioning
+    ec2:
+      key_name: "mumbai07312000"
+      instance_type: "t2-micro"
+      image: "ami-e1e18a8e"
+      wait: yes
+      count: 1
+      vpc_subnet_id: "subnet-00858668"
+      assign_public_ip: yes
+      region: "ap-south-1"
+      state: present
+# state: absent (To decommision)
+      group_id: "sg-0e6f7fe7ff31e1a3b"
+      instance_tags:
+          Name: ansible-01
+          Project: pilot
+# access key and secret is defined in separate file named "secure.yml" secured by ansible vault. \
+# (ansible-vault create vault-id prod@prompt secure.yml)
+      aws_access_key: "{{ userid }}"
+      aws_secret_key: "{{ pass }}"
