@@ -1,0 +1,17 @@
+---
+
+- name: Install packages
+  hosts: all
+  vars:
+    packages:
+      - nmap
+      - telnet
+      - php
+      - mod_php
+      - mod_ssl
+      
+  tasks:
+    - name: Install software
+      yum:
+        name: "{{ packages }}"
+        state: present
