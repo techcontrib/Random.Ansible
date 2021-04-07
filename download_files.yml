@@ -1,0 +1,40 @@
+---
+- hosts: all
+  user: autouser
+  become: yes
+  vars:
+    destdir: "/home/autouser/automation_scripts/"
+  tasks:
+  - name: ansible set permission recursvely for a directory
+    file:
+      path: "{{destdir}}"
+      state: directory
+      owner: autouser
+      group: autouser
+      mode: "u=rwx,g=rw,o=r"
+      recurse: yes
+      
+  - name: Download files from central location and copy on target server(s)...
+    with_items:
+      - "https://test.foo.com/pub/script1.sh"
+      - "https://test.foo.com/pub/script2.py"
+      - "https://test.foo.com/pub/script3.yml"
+    get_url:
+      url: "{{ item }}"
+      dest: "{{destdir}}"
+      owner: autouser
+      group: autouser
+      mode: "u=rwx,g=rw,o=r"
+
+  - name: Run the first script on remote server
+    shell: sh /home/autouser/automation_scripts/script1.sh
+    register: script_output
+    failed_when: script_output.rc != 0
+    
+  - name: Sleep for a sixtieth of an hour! 
+    shell: sleep 60
+
+  - name: Run the second script on remote server
+    shell: sh /home/autouser/automation_scripts/script2.py
+    register: script2_output
+    failed_when: "'FAIL' in script2_output.stdout"
