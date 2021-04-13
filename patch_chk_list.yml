@@ -1,0 +1,19 @@
+---
+- hosts: patching
+  user: symauto
+  become: yes
+  vars:
+    destdir: "/home/symauto/pre_post_scripts/"
+  tasks:
+    - block:
+      - block:
+        - name: Checks whether packages are present to upgrade this server and if no patches to upgrade, exit the current shell
+          yum:
+            list: updates
+            disablerepo: "*"
+            enablerepo: "*rhel*"
+            update_cache: yes
+          register: yum_updates
+          timeout: 900
+        - debug:
+            msg: "{{ yum_updates.results | map(attribute='name') | list }}"
