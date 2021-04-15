@@ -1,0 +1,4 @@
+For example, we have a variable like ansible_nodename containing the fqdn: server1.example.org and want to create a label with only the first part: server1.
+
+==> name: '{{  ansible_nodename.split(".")[0] | lower }}'
+==> servername: '{{ inventory_hostname | lower}}'
