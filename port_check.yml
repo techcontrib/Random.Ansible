@@ -17,6 +17,11 @@
         msg: "Timeout while waiting for port 22"
       register: port_check
       ignore_errors: yes
-    
+     
+      tags:
+        - rhel
+      when:
+        ansible_distribution == "RedHat"
+        
     - debug:
         msg: "{{ port_check }}"
