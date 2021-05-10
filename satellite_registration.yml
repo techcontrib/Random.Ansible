@@ -1,0 +1,60 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: yes
+  
+  tasks:
+  - set_fact:
+      akey: '{% if ansible_distribution_major_version == "6" %}key-rhel6-64{% elif ansible_distribution_major_version == "7" %}key-rhel7-64{% elif ansible_distribution_major_version == "8" %}key-rhel8-64{% else %}Key Not defined{% endif %}'
+      oid: "Foo_Inc_"
+      saturl: https://satellite.foo.com
+      katello: pub/katello-ca-consumer-latest.noarch.rpm
+  - name: Modify "subscription-manager.conf" - Set option "enabled=1"
+    lineinfile:
+      path: /etc/yum/pluginconf.d/subscription-manager.conf
+      regexp: '^enabled'
+      line: 'enabled=1'
+    when:
+      - ansible_distribution_major_version == "7" or ansible_distribution_major_version == "8"
+
+# Determines whether the plugin will be used by yum or not.
+  - name: Modify "rhnplugin.conf" - Set option "enable=0"
+    lineinfile:
+      path: /etc/yum/pluginconf.d/rhnplugin.conf
+      regexp: '^enabled'
+      line: 'enabled=0'
+    when:
+      - ansible_distribution_major_version == "6" or ansible_distribution_major_version == "7"
+
+  - name: Clean-up any previous registration
+    shell: /bin/mv /etc/sysconfig/rhn/systemid /etc/sysconfig/rhn/systemid.bak
+    when:
+      - ansible_distribution_major_version == "6"
+    ignore_errors: True
+
+  - name: Let's clean yum metadata
+    command: yum clean metadata
+    args:
+      warn: no
+    ignore_errors: True
+    
+  - name: Download CA certificate
+    yum:
+      disable_gpg_check: yes
+      name: '{{ saturl }}/{{ katello }}'
+      state: present
+
+  - name: RHEL 6/7/8 registration
+    redhat_subscription:
+      state: present
+      activationkey: "{{ akey }}"
+      org_id: "{{ oid }}"
+    register: output
+  
+  - debug:
+      msg: "{{ output }}"
+
+  - name: Install required packages
+    action: >
+        {{ ansible_pkg_mgr }} name=telnet,gcc state=present update_cache=yes  
+...
