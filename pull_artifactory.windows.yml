@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: no
+  gather_facts: no
+  tasks:
+  - win_get_url:
+      url: https://artifactory.foo.bar/artifactory/Post-P/Win/PPData.tar
+      dest: c:\tmp\
+      headers: "X-JFrog-Art-Api=AKPk5firqNJ2UuA4u9qy1GDP4P7rR89pBQ57z7VNi917yuSdTx5qkpDjZbhboXGBVKyeLTR6A"
