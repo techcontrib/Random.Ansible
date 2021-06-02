@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: no
+  gather_facts: no
+  tasks:
+  - mail:
+      host: smtp-relay-foobar.com
+      from: nilesh@foobar.com
+      to: team@foobar.com
+      subject: 'Installation Report on Server {{ inventory_hostname }}'
+      body: 'PFA'
+      attach: /home/autouser/ops_activities/post_provisioning_windows/reports.csv
+    delegate_to: localhost
